@@ -3,7 +3,7 @@
 [![Build and Push Docker Image](https://github.com/hanwbcode/sre-shell/actions/workflows/docker-build.yml/badge.svg)](https://github.com/hanwbcode/sre-shell/actions/workflows/docker-build.yml)
 [![GitHub Packages](https://img.shields.io/badge/GHCR-sre--shell-blue?logo=docker)](https://github.com/hanwbcode/sre-shell/pkgs/container/sre-shell)
 
-面向云原生与混合云环境的 SRE / DevOps 开箱即用运维工具容器镜像，基于 Debian Bookworm 构建，集成了主流 Kubernetes、对象存储（AWS S3、阿里云 OSS）及常用诊断运维工具。
+面向云原生与混合云环境的 SRE / DevOps 开箱即用运维工具容器镜像，基于 Python 3.14 (Debian Slim) 构建，集成了主流 Kubernetes、对象存储（AWS S3、阿里云 OSS）及常用诊断运维工具。
 
 ---
 
@@ -11,6 +11,7 @@
 
 | 工具 | 说明 | 版本策略 | 验证命令 |
 | :--- | :--- | :--- | :--- |
+| **Python 3.14** | Python 3.14 解释器与 pip 包管理器 | 官方 Python 3.14-slim 基础镜像 | `python3 --version && pip --version` |
 | **kubectl** | Kubernetes 命令行管理客户端 | 官方最新稳定版 | `kubectl version --client` |
 | **Helm** | Kubernetes 应用包管理器 | 官方最新稳定版 (Helm 3) | `helm version` |
 | **PostgreSQL 备份与管理** | `pg_dump`, `pg_dumpall`, `pg_restore`, `psql`, `pg_basebackup` | PGDG 官方最新稳定版 | `pg_dump --version` |
@@ -142,7 +143,7 @@ cd sre-shell
 docker build -t sre-shell:local .
 
 # 测试运行
-docker run --rm sre-shell:local bash -c "kubectl version --client && helm version && aws --version && ossutil version && pg_dump --version && mysqldump --version && mydumper --version"
+docker run --rm sre-shell:local bash -c "python3 --version && pip --version && kubectl version --client && helm version && aws --version && ossutil version && pg_dump --version && mysqldump --version && mydumper --version"
 ```
 
 ---

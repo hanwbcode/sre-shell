@@ -1,9 +1,12 @@
-FROM debian:trixie
-# python:3.14-trixie
+FROM python:3.14-slim
 
-ENV TZ=Asia/Shanghai
+ENV TZ=Asia/Shanghai \
+    PIP_BREAK_SYSTEM_PACKAGES=1
 
 WORKDIR /opt
+
+# Verify Python
+RUN python3 --version && python --version && pip --version
 
 # Install base tools
 RUN apt-get update && \
