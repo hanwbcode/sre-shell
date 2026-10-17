@@ -16,7 +16,7 @@
 | **Helm** | Kubernetes 应用包管理器 | 官方最新稳定版 (Helm 3) | `helm version` |
 | **PostgreSQL 备份与管理** | `pg_dump`, `pg_dumpall`, `pg_restore`, `psql`, `pg_basebackup` | PGDG 官方最新稳定版 | `pg_dump --version` |
 | **MySQL 备份与管理** | `mysqldump`, `mysql`, `mysqladmin` (MariaDB/MySQL 客户端) | Debian 官方仓库 | `mysqldump --version` |
-| **MyDumper / MyLoader** | MySQL 高性能多线程并行备份与恢复工具 | Debian 官方仓库 | `mydumper --version` |
+| **MyDumper / MyLoader** | MySQL 高性能多线程并行备份与恢复工具 | 官方最新稳定版 (.deb) | `mydumper --version` |
 | **AWS CLI v2** | AWS 云平台与 S3 对象存储管理工具 | 官方最新 v2 版本 | `aws --version` |
 | **ossutil v2** | 阿里云 OSS 对象存储命令行工具 | 官方最新 2.x 版本 | `ossutil version` |
 | **系统基础工具** | `git`, `curl`, `ca-certificates`, `unzip`, `less`, `groff-base`, `pigz`, `zstd` | Debian Bookworm 官方仓库 | - |

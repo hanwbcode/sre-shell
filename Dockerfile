@@ -28,14 +28,20 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 
 # Install Database Backup & Client Tools (MySQL & PostgreSQL)
-RUN curl -fsSL https://www.postgresql.org/media/keys/ACCC4CF8.asc | gpg --dearmor | tee /usr/share/keyrings/postgresql.gpg > /dev/null && \
+RUN mkdir -p /usr/share/keyrings && \
+    curl -fsSL https://www.postgresql.org/media/keys/ACCC4CF8.asc | gpg --dearmor | tee /usr/share/keyrings/postgresql.gpg > /dev/null && \
     . /etc/os-release && \
+    VERSION_CODENAME=${VERSION_CODENAME:-trixie} && \
+    ARCH=$(dpkg --print-architecture) && \
     echo "deb [signed-by=/usr/share/keyrings/postgresql.gpg] https://apt.postgresql.org/pub/repos/apt ${VERSION_CODENAME}-pgdg main" | tee /etc/apt/sources.list.d/pgdg.list && \
     apt-get update && \
     apt-get install -y --no-install-recommends \
     default-mysql-client \
-    mydumper \
     postgresql-client && \
+    MYDUMPER_VER=$(curl -fsSLI -o /dev/null -w %{url_effective} https://github.com/mydumper/mydumper/releases/latest | sed 's/.*\/tag\/v//') && \
+    curl -fsSL "https://github.com/mydumper/mydumper/releases/download/v${MYDUMPER_VER}/mydumper_${MYDUMPER_VER}.${VERSION_CODENAME}_${ARCH}.deb" -o "mydumper.deb" && \
+    apt-get install -y --no-install-recommends ./mydumper.deb && \
+    rm -f mydumper.deb && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* && \
     mysqldump --version && \
