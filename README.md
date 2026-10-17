@@ -13,9 +13,12 @@
 | :--- | :--- | :--- | :--- |
 | **kubectl** | Kubernetes 命令行管理客户端 | 官方最新稳定版 | `kubectl version --client` |
 | **Helm** | Kubernetes 应用包管理器 | 官方最新稳定版 (Helm 3) | `helm version` |
+| **PostgreSQL 备份与管理** | `pg_dump`, `pg_dumpall`, `pg_restore`, `psql`, `pg_basebackup` | PGDG 官方最新稳定版 | `pg_dump --version` |
+| **MySQL 备份与管理** | `mysqldump`, `mysql`, `mysqladmin` (MariaDB/MySQL 客户端) | Debian 官方仓库 | `mysqldump --version` |
+| **MyDumper / MyLoader** | MySQL 高性能多线程并行备份与恢复工具 | Debian 官方仓库 | `mydumper --version` |
 | **AWS CLI v2** | AWS 云平台与 S3 对象存储管理工具 | 官方最新 v2 版本 | `aws --version` |
 | **ossutil v2** | 阿里云 OSS 对象存储命令行工具 | 官方最新 2.x 版本 | `ossutil version` |
-| **系统基础工具** | `git`, `curl`, `ca-certificates`, `unzip`, `less`, `groff-base` | Debian Bookworm 官方仓库 | - |
+| **系统基础工具** | `git`, `curl`, `ca-certificates`, `unzip`, `less`, `groff-base`, `pigz`, `zstd` | Debian Bookworm 官方仓库 | - |
 
 - **默认时区**：`Asia/Shanghai` (UTC+8)
 - **支持架构**：`linux/amd64` (Dockerfile 内部已支持自适应 `amd64` 与 `arm64`)
@@ -102,6 +105,29 @@ kubectl get nodes -o wide
 helm list -A
 ```
 
+### 4. 数据库备份与恢复
+
+#### PostgreSQL 逻辑备份 (pg_dump)
+```bash
+# 单库逻辑备份并使用 pigz 多线程压缩保存到本地
+pg_dump -h <host> -U <user> -d <dbname> | pigz > backup.sql.gz
+
+# 备份为自定义格式并通过管道流式直传 S3（无需临时占用本地磁盘）
+pg_dump -h <host> -U <user> -Fc <dbname> | aws s3 cp - s3://my-bucket/backup/$(date +%Y%m%d)_<dbname>.dump
+
+# 流式直传阿里云 OSS
+pg_dump -h <host> -U <user> -Fc <dbname> | ossutil cp - oss://my-bucket/backup/$(date +%Y%m%d)_<dbname>.dump
+```
+
+#### MySQL 备份 (mysqldump / mydumper)
+```bash
+# 单库逻辑备份并通过管道流式直传 S3 (结合 pigz 压缩)
+mysqldump -h <host> -u <user> -p<password> --single-transaction --quick <dbname> | pigz | aws s3 cp - s3://my-bucket/mysql/backup.sql.gz
+
+# 使用 mydumper 进行多线程并行备份
+mydumper -h <host> -u <user> -p <password> -B <dbname> -o /tmp/backup_dir -t 4 --compress
+```
+
 ---
 
 ## 🛠️ 本地构建与测试
@@ -116,7 +142,7 @@ cd sre-shell
 docker build -t sre-shell:local .
 
 # 测试运行
-docker run --rm sre-shell:local bash -c "kubectl version --client && helm version && aws --version && ossutil version"
+docker run --rm sre-shell:local bash -c "kubectl version --client && helm version && aws --version && ossutil version && pg_dump --version && mysqldump --version && mydumper --version"
 ```
 
 ---

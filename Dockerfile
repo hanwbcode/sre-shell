@@ -1,4 +1,5 @@
-FROM public.ecr.aws/docker/library/debian:bookworm
+FROM debian:trixie
+# python:3.14-trixie
 
 ENV TZ=Asia/Shanghai
 
@@ -7,19 +8,36 @@ WORKDIR /opt
 # Install base tools
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
-        git \
-        tzdata \
-        curl \
-        gpg \
-        apt-transport-https \
-        ca-certificates \
-        unzip \
-        less \
-        groff-base && \
+    git \
+    tzdata \
+    curl \
+    gpg \
+    apt-transport-https \
+    ca-certificates \
+    unzip \
+    less \
+    groff-base \
+    pigz \
+    zstd && \
     ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && \
     echo $TZ > /etc/timezone && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
+
+# Install Database Backup & Client Tools (MySQL & PostgreSQL)
+RUN curl -fsSL https://www.postgresql.org/media/keys/ACCC4CF8.asc | gpg --dearmor | tee /usr/share/keyrings/postgresql.gpg > /dev/null && \
+    . /etc/os-release && \
+    echo "deb [signed-by=/usr/share/keyrings/postgresql.gpg] https://apt.postgresql.org/pub/repos/apt ${VERSION_CODENAME}-pgdg main" | tee /etc/apt/sources.list.d/pgdg.list && \
+    apt-get update && \
+    apt-get install -y --no-install-recommends \
+    default-mysql-client \
+    mydumper \
+    postgresql-client && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/* && \
+    mysqldump --version && \
+    mydumper --version && \
+    pg_dump --version
 
 # Install kubectl
 RUN ARCH=$(dpkg --print-architecture) && \
